@@ -20,6 +20,16 @@ impl TableRow
         self.path = format!("{}.bson",name.clone());
         let mut file = File::create(self.path.clone()).unwrap();
         entry.save(file)?;
+        Table::insert(self);
         Ok(())
+    }
+}
+
+mod Table{
+    use super::TableRow;
+
+
+    pub fn insert(row :&mut TableRow){
+        
     }
 }
