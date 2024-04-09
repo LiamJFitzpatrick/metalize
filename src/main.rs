@@ -1,52 +1,26 @@
-use serde::{Deserialize, Serialize};
-use serde::de::DeserializeOwned;
-use bson::{bson, Bson, doc, Document};
 use std::fs::File;
-use std::io::{BufReader, Seek, Write, Read};
-use std::error::Error;
 
+use serde::{Deserialize, Serialize};
 
-struct Collection<T> 
-{
-    entries: Vec<T>
+mod collection;
+
+#[derive(Serialize, Deserialize)]
+struct Potato {
+    bob: f64
 }
 
-impl<T> Collection<T>{
-    fn get(&self) -> Option<&T>{
-        self.entries.get(0)
-    }
-}
+fn main() {
+    // let mut peeps: collection::Collection<Potato> = collection::Collection{entries: Vec::new()};
 
-impl<T> Collection<T>
-    where 
-    T : Serialize
-{
-    fn save<W>(&self, mut writer : W) -> Result<(), Box<dyn Error>>
-     where W : Write {
-        for a in self.entries.iter(){
-            let d = bson::to_document(a)?;
-            d.to_writer(&mut writer)?;
-        }
-        Ok(())
-    }
+    // peeps.entries.push(Potato{bob:12.0});
+    // peeps.entries.push(Potato{bob:42.0});
+    // let mut file = File::create("test.bson").unwrap();
+    // peeps.save(file).unwrap();
 
-}
+    let mut pops: collection::Collection<Potato> = collection::Collection { entries: Vec::new() };
 
-impl<T> Collection<T>
-where
-T: DeserializeOwned
-{
-    fn load(&mut self, mut file: File) -> Result<(), Box<dyn Error>>{
-        let n = file.metadata()?.len();
-        let mut reader = BufReader::new(file);
-        let mut current_position = reader.stream_position()?;
-        while current_position < n{
-            let d = Document::from_reader(&mut reader)?;
-            let h: T = bson::from_document(d)?;
-            self.entries.push(h);
-            current_position = reader.stream_position()?;
-        }
-        Ok(())
+    let mut file = File::open("test.bson").unwrap();
+    pops.load(file).unwrap();
 
-    }
+    println!("blah");
 }
