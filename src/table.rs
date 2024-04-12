@@ -55,6 +55,16 @@ impl Table {
         Ok(table)
     }
 
+    fn rewrite_table(&mut self) -> Result<(), Box<dyn Error>>{
+        remove_file("metalize.table")?;
+        let file = File::create("metalize.table")?;
+        for row in self.rows.iter(){
+            let x = serde_json::to_value(row)?;
+            serde_json::to_writer(&file, &x)?;
+        }
+        Ok(())
+    }
+
     pub fn insert<T:Serialize>(&mut self, entry: Collection<T>) -> Result<(), Box<dyn Error>> { 
         let path = Path::new("metalize.table");
         let y = if path.exists() {
@@ -75,7 +85,7 @@ impl Table {
         Ok(())
     }
 
-    pub fn addToCollection<T:Serialize + DeserializeOwned>(&mut self, collection_id : usize, object: T) -> Result<(), Box<dyn Error>>{
+    pub fn add_to_collection<T:Serialize + DeserializeOwned>(&mut self, collection_id : usize, object: T) -> Result<(), Box<dyn Error>>{
         // TODO: this currently wipes out files and rewrites the entirety of them. Update to only change the sections that need to change.
         let selected_row = self.getRow(collection_id);
         let mut selected_collection: Collection<T> = Collection::load(File::open(&selected_row.path)?)?;
@@ -83,6 +93,7 @@ impl Table {
         selected_collection.entries.push(object);
         selected_row.num_entries = selected_collection.entries.len();
         selected_collection.save(File::create(&selected_row.path)?)?;
+        self.rewrite_table()?;
         Ok(())
     }
 
@@ -92,6 +103,7 @@ impl Table {
         remove_file(&selected_row.path)?;
         selected_row.num_entries = entry.entries.len();
         entry.save(File::create(&selected_row.path)?)?;
+        self.rewrite_table()?;
         Ok(())
     }
 

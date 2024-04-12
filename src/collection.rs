@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde::de::DeserializeOwned;
-use bson::{bson, Bson, doc, Document};
+use bson::Document;
 use std::fs::File;
-use std::io::{BufReader, Seek, Write, Read};
+use std::io::{BufReader, Seek, Write};
 use std::error::Error;
 
 
