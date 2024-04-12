@@ -22,7 +22,7 @@ fn main() {
 
     let mut table = Table::init().unwrap();
 
-    let mut peeps: Collection<Potato> = table.get(1).unwrap();
+    table.addToCollection(1, Potato{bob: 66.0}).unwrap();
 
     println!("blah");
 }
