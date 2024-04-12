@@ -1,8 +1,8 @@
 use std::fs::File;
 
+use metalize::table::Table;
 use serde::{Deserialize, Serialize};
-
-mod collection;
+use metalize::collection::Collection;
 
 #[derive(Serialize, Deserialize)]
 struct Potato {
@@ -10,17 +10,19 @@ struct Potato {
 }
 
 fn main() {
-    // let mut peeps: collection::Collection<Potato> = collection::Collection{entries: Vec::new()};
+    // let mut peeps: Collection<Potato> = Collection{entries: Vec::new()};
 
     // peeps.entries.push(Potato{bob:12.0});
     // peeps.entries.push(Potato{bob:42.0});
-    // let mut file = File::create("test.bson").unwrap();
-    // peeps.save(file).unwrap();
+    
 
-    let mut pops: collection::Collection<Potato> = collection::Collection { entries: Vec::new() };
+    // let mut table = Table::init().unwrap();
 
-    let mut file = File::open("test.bson").unwrap();
-    pops.load(file).unwrap();
+    // table.insert(peeps).unwrap();
+
+    let mut table = Table::init().unwrap();
+
+    let mut peeps: Collection<Potato> = table.get(1).unwrap();
 
     println!("blah");
 }
