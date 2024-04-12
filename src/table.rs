@@ -1,4 +1,3 @@
-use core::fmt;
 use std::{fs::{File,remove_file}, io::{Seek, BufReader}};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::error::Error;
@@ -21,7 +20,7 @@ impl TableRow
 {
     fn new<T:Serialize>(id: usize, name: Uuid, entry: Collection<T>, file_pos: u64) -> Result<TableRow, Box<dyn Error>>{
         let path = format!("{}.bson", name);
-        let mut file = File::create(&path)?;
+        let file = File::create(&path)?;
         entry.save(file)?;
         Ok(
             TableRow { id: id, name: name, num_entries: entry.entries.len(), path: path, file_pos: file_pos  }
@@ -87,7 +86,7 @@ impl Table {
 
     pub fn add_to_collection<T:Serialize + DeserializeOwned>(&mut self, collection_id : usize, object: T) -> Result<(), Box<dyn Error>>{
         // TODO: this currently wipes out files and rewrites the entirety of them. Update to only change the sections that need to change.
-        let selected_row = self.getRow(collection_id);
+        let selected_row = self.get_row(collection_id);
         let mut selected_collection: Collection<T> = Collection::load(File::open(&selected_row.path)?)?;
         remove_file(&selected_row.path)?;
         selected_collection.entries.push(object);
@@ -99,7 +98,7 @@ impl Table {
 
     pub fn update<T:Serialize>(&mut self, id: usize, entry: Collection<T>)-> Result<(), Box<dyn Error>>{
         // TODO: this currently wipes out files and rewrites the entirety of them. Update to only change the sections that need to change.
-        let selected_row = self.getRow(id);
+        let selected_row = self.get_row(id);
         remove_file(&selected_row.path)?;
         selected_row.num_entries = entry.entries.len();
         entry.save(File::create(&selected_row.path)?)?;
@@ -107,7 +106,7 @@ impl Table {
         Ok(())
     }
 
-    fn getRow(&mut self, id: usize) -> &mut TableRow{
+    fn get_row(&mut self, id: usize) -> &mut TableRow{
         let row_index = self.rows.iter().position(move |row |{
             row.id == id
         }).expect("Failed to find that row in table.");
@@ -115,8 +114,8 @@ impl Table {
     }
 
     pub fn get<T:DeserializeOwned>(&mut self, id: usize)-> Result<Collection<T>, Box<dyn Error>>{
-        let table_row = self.getRow(id);
-        let mut file = File::open(&table_row.path)?;
+        let table_row = self.get_row(id);
+        let file = File::open(&table_row.path)?;
         Collection::load(file)
     }
 }

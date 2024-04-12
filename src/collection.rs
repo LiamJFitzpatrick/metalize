@@ -41,7 +41,7 @@ impl<T> Collection<T>
 where
 T: DeserializeOwned
 {
-    pub fn load(mut file: File) -> Result<Collection<T>, Box<dyn Error>>{
+    pub fn load(file: File) -> Result<Collection<T>, Box<dyn Error>>{
         let n = file.metadata()?.len();
         let mut reader = BufReader::new(file);
         let mut current_position = reader.stream_position()?;
